@@ -44,7 +44,6 @@ def group_content(generator, content_type):
         collations['%s_%s' % (category, content_type)].append(content)
     print(collations)
     generator.context['collations'] = collations
-    import ipdb; ipdb.set_trace()
 
 
 ARTICLE_GROUPER = functools.partial(group_content, content_type='articles')
