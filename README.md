@@ -18,7 +18,7 @@ this repository in your `$PYTHONPATH`.
 
 ## Usage
 
-To display the title of all content in the category `Software Development`, 
+To display all content in the category `Software Development`, 
 you could use the following block in a template. In the template, the category
 will appear in lowercase with internal whitespace and '-' characters
 converted to underscores:
@@ -36,7 +36,7 @@ converted to underscores:
     
     <ul>
     {% for p in software_development_pages %}
-        <li>p.date - p.title</li> 
+        <li> p.title - p.summary</li> 
     {% endfor %}
     </ul>
     ```
