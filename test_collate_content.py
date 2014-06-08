@@ -110,16 +110,19 @@ def modified_pelican_run(self):
     return context
 
 
-class TestContentCollation(unittest.TestCase):
+class ContentCollationTester(unittest.TestCase):
     """Test generation of lists of content based on their Category metadata"""
 
     def setUp(self, settings_overrides=None, articles=5, pages=5,
-              categories_per_content=1):
+              categories_per_content=1, categories=None):
         self.temp_input_dir = tempfile.mkdtemp(prefix="cc-input-")
         page_directory = os.path.join(self.temp_input_dir, 'pages')
         os.mkdir(page_directory)
         self.temp_output_dir = tempfile.mkdtemp(prefix="cc-output-")
-        categories = [get_random_text_and_whitespace() for _ in range(5)]
+
+        if categories is None:
+            categories = [get_random_text_and_whitespace() for _ in range(5)]
+
         self.articles = make_content(
             self.temp_input_dir, categories, count=5,
             categories_per_content=categories_per_content)
@@ -142,6 +145,10 @@ class TestContentCollation(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.temp_input_dir)
         shutil.rmtree(self.temp_output_dir)
+
+
+class TestContentCollation(ContentCollationTester):
+    """Test generation of lists of content based on their Category metadata"""
 
     def test_articles_with_one_category(self):
 
@@ -168,14 +175,16 @@ class TestContentCollation(unittest.TestCase):
                 self.assertIn(title, collated_titles)
 
 
-class TestContentCollationWithFilteredCategories(unittest.TestCase):
+class TestContentCollationWithFilteredCategories(ContentCollationTester):
     """Test generation of lists of content based on their Category metadata"""
 
     def setUp(self):
-        pass
+        categories = [get_random_text_and_whitespace() for _ in range(5)]
+        self.retained_categories = categories[:2]
+        override = {'CATEGORIES_TO_COLLATE': self.retained_categories}
 
-    def tearDown(self):
-        pass
+        ContentCollationTester.setUp(
+            self, settings_overrides=override, categories=categories)
 
     def test_articles_with_one_category(self):
         pass
