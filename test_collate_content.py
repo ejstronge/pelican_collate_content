@@ -62,9 +62,9 @@ def make_content(directory, categories, count=5, categories_per_content=1):
         with content_file as tmp:
             tmp.write(output)
         path = os.path.join(directory, content_file.name)
-        new_content[
-            (cc.substitute_category_name(category_choice), category_choice)] =\
-            Content(title, path, categories_string)
+        for each_cat in category_choice:
+            new_content[(cc.substitute_category_name(each_cat), each_cat)] =\
+                Content(title, path, categories_string)
     return new_content
 
 
