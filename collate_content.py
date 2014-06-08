@@ -20,8 +20,15 @@ from pelican import signals
 
 def group_content(generator, content_type):
     """
-    Assembles articles and pages into lists which are available
+    Assembles articles and pages into lists based on each
+    article or page's content. These lists are available
     through the global context passed to the template engine.
+
+    When multiple categories are present, splits category names
+    based on commas and trims whitespace surrounding a
+    category's name. Thus, commas may not appear within a category
+    but they can be used to delimit categories and may be surrounded by
+    arbitrary amounts of whitespace.
 
     For each category, substitutes '_' for all whitespace and '-'
     characters, then creates a list named `SUBSTITUTED_CATEGORY_NAME`_articles
@@ -37,11 +44,12 @@ def group_content(generator, content_type):
 
     collations = generator.context.get('collations', defaultdict(list))
     for content in generator.context[content_type]:
-        category = content.category.name
-        if filtering_active and category not in category_filter:
-            continue
-        category = substitute_category_name(category)
-        collations['%s_%s' % (category, content_type)].append(content)
+        category_list = [c.strip() for c in content.category.name.split(',')]
+        for category in category_list:
+            if filtering_active and category not in category_filter:
+                continue
+            category = substitute_category_name(category)
+            collations['%s_%s' % (category, content_type)].append(content)
     generator.context['collations'] = collations
 
 
