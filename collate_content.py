@@ -42,7 +42,6 @@ def group_content(generator, content_type):
             continue
         category = substitute_category_name(category)
         collations['%s_%s' % (category, content_type)].append(content)
-    print(collations)
     generator.context['collations'] = collations
 
 
