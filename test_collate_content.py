@@ -115,11 +115,10 @@ class TestContentCollation(unittest.TestCase):
 
     def setUp(self, settings_overrides=None, articles=5, pages=5,
               categories_per_content=1):
-        self.temp_input_dir = tempfile.mkdtemp(prefix="cc-input-", dir='/home/roi/')
+        self.temp_input_dir = tempfile.mkdtemp(prefix="cc-input-")
         page_directory = os.path.join(self.temp_input_dir, 'pages')
         os.mkdir(page_directory)
-        self.temp_output_dir = tempfile.mkdtemp(prefix="cc-output-",
-                                                dir='/home/roi/')
+        self.temp_output_dir = tempfile.mkdtemp(prefix="cc-output-")
         categories = [get_random_text_and_whitespace() for _ in range(5)]
         self.articles = make_content(
             self.temp_input_dir, categories, count=5,
