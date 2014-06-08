@@ -22,13 +22,7 @@ from pelican.settings import read_settings
 import collate_content as cc
 
 TEMP_PAGE_TEMPLATE = """Title: {title}
-Date: 2014-03-06
 Category: {category}
-Author: Rumpelstiltskin
-Tags: just, a, test
-
-some interesting writing!
-
 """
 
 Content = namedtuple('Content', ['title', 'path', 'category'])
@@ -134,6 +128,7 @@ class ContentCollationTester(unittest.TestCase):
             'PAGE_DIR': 'pages',
             'OUTPUT_PATH': self.temp_output_dir,
             'PLUGINS': [cc],
+            'DEFAULT_DATE': (2014, 6, 8),
             }
         if settings_overrides is not None:
             settings.update(settings_overrides)
