@@ -3,14 +3,18 @@
 
 Makes categories of content available to the template as lists through a
 `collations` attribute. I primarily developed this to make it easier
-to work with `Page` objects with category metadata.
+to work with `Page` objects that contain category metadata.
 
 ## Installation ##
 
-Add this module to your Pelican configuration as follows:
+If you downloaded this module as part of the pelican-plugins repository, 
+add it to your Pelican configuration as follows:
 
     PLUGIN_PATH = '/path/to/pelican-plugins'
-    PLUGINS = ['collate_content', ]
+    PLUGINS = ['pelican_collate_content', ]
+
+Otherwise, you can import it into Python as a normal module if you place
+this repository in your `$PYTHONPATH`.
 
 ## Usage ##
 
