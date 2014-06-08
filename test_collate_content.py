@@ -1,9 +1,8 @@
 """
-test_collate_content
-====================
+test_collate_content.py
+=======================
 
-Edward J. Stronge
-(c) 2014
+(c) 2014 - Edward J. Stronge
 
 Tests for the collate_content module
 """
@@ -50,12 +49,11 @@ def make_content(directory, categories, count=5, categories_per_content=1):
         categories_string = ', '.join(category_choice)
         output = TEMP_PAGE_TEMPLATE.format(
             title=title, category=categories_string)
-
-        content_file = tempfile.NamedTemporaryFile(
-            dir=directory, mode='w', suffix='.md', delete=False)
-        with content_file as tmp:
+        with tempfile.NamedTemporaryFile(
+                dir=directory, mode='w', suffix='.md', delete=False) as tmp:
             tmp.write(output)
-        path = os.path.join(directory, content_file.name)
+            path = os.path.join(directory, tmp.name)
+
         for each_cat in category_choice:
             new_content[(cc.substitute_category_name(each_cat), each_cat)]\
                 .append(Content(title, path, categories_string))
@@ -107,7 +105,7 @@ def modified_pelican_run(self):
 class ContentCollationTester(unittest.TestCase):
     """Test generation of lists of content based on their Category metadata"""
 
-    def setUp(self, settings_overrides=None, articles=5, pages=5,
+    def setUp(self, settings_overrides=None, count=5,
               categories_per_content=1, categories=None):
         self.temp_input_dir = tempfile.mkdtemp(prefix="cc-input-")
         page_directory = os.path.join(self.temp_input_dir, 'pages')
@@ -118,10 +116,10 @@ class ContentCollationTester(unittest.TestCase):
             categories = [get_random_text_and_whitespace() for _ in range(5)]
 
         self.articles = make_content(
-            self.temp_input_dir, categories, count=5,
+            self.temp_input_dir, categories, count=count,
             categories_per_content=categories_per_content)
         self.pages = make_content(
-            page_directory, categories, count=5,
+            page_directory, categories, count=count,
             categories_per_content=categories_per_content)
         settings = {
             'PATH': self.temp_input_dir,
@@ -142,7 +140,7 @@ class ContentCollationTester(unittest.TestCase):
         shutil.rmtree(self.temp_output_dir)
 
 
-class TestContentCollation(ContentCollationTester):
+class TestCollation(ContentCollationTester):
     """Test generation of lists of content based on their Category metadata"""
 
     def test_articles_with_one_category(self):
@@ -170,8 +168,23 @@ class TestContentCollation(ContentCollationTester):
                 self.assertIn(title, collated_titles)
 
 
-class TestContentCollationWithFilteredCategories(ContentCollationTester):
-    """Test generation of lists of content based on their Category metadata"""
+class TestCollationAndMultipleCategories(TestCollation):
+    """
+    Test collate_content with multiple categories specified in each
+    article and each page.
+    """
+    def setUp(self):
+        categories = [get_random_text_and_whitespace() for _ in range(5)]
+
+        ContentCollationTester.setUp(
+            self, categories=categories, categories_per_content=3)
+
+
+class TestFilteredCategories(ContentCollationTester):
+    """
+    Test collate_content with the `CATEGORIES_TO_COLLATE` setting
+    in effect
+    """
 
     def setUp(self):
         categories = [get_random_text_and_whitespace() for _ in range(5)]
@@ -181,8 +194,56 @@ class TestContentCollationWithFilteredCategories(ContentCollationTester):
         ContentCollationTester.setUp(
             self, settings_overrides=override, categories=categories)
 
-    def test_articles_with_one_category(self):
-        pass
+    def test_articles_with_one_category_after_filtering(self):
+
+        for substituted_category, original_category in self.articles.keys():
+            collation_key = '%s_articles' % substituted_category
+
+            if original_category not in self.retained_categories:
+                self.assertNotIn(collation_key, self.collations)
+                continue
+
+            self.assertIn(collation_key, self.collations)
+
+            collated_titles = [a.title for a in self.collations[collation_key]]
+
+            for title, _, _ in self.articles[
+                    (substituted_category, original_category)]:
+                self.assertIn(title, collated_titles)
+
+    def test_pages_with_one_category_after_filtering(self):
+
+        for substituted_category, original_category in self.pages.keys():
+            collation_key = '%s_pages' % substituted_category
+
+            if original_category not in self.retained_categories:
+                self.assertNotIn(collation_key, self.collations)
+                continue
+
+            self.assertIn(collation_key, self.collations)
+
+            collated_titles = [a.title for a in self.collations[collation_key]]
+
+            for title, _, _ in self.pages[
+                    (substituted_category, original_category)]:
+                self.assertIn(title, collated_titles)
+
+
+class TestFilteredAndMultipleCategories(TestFilteredCategories):
+    """
+    Test collate_content with the `CATEGORIES_TO_COLLATE` setting
+    in effect as well as with multiple categories specified in each
+    article and each page.
+    """
+    def setUp(self):
+        categories = [get_random_text_and_whitespace() for _ in range(5)]
+        self.retained_categories = categories[:2]
+        override = {'CATEGORIES_TO_COLLATE': self.retained_categories}
+
+        ContentCollationTester.setUp(
+            self, settings_overrides=override, categories=categories,
+            categories_per_content=3)
+
 
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromNames(['test_collate_content'])

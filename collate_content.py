@@ -1,11 +1,11 @@
 """
-Collate Content
-===============
+collate_content.py
+==================
 
 (c) 2014 - Edward Stronge
 
 Connects to the content generator finalized signal to combine
-content sharing a category into a single list that will be
+articles and pages sharing a category into lists that will be
 available in the template context.
 
 Thanks to #pelican member @kura for suggestions on creating this
