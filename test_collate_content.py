@@ -7,7 +7,7 @@ Edward J. Stronge
 
 Tests for the collate_content module
 """
-from collections import namedtuple
+from collections import defaultdict, namedtuple
 import os
 import random
 import tempfile
@@ -49,7 +49,7 @@ def make_content(directory, categories, count=5, categories_per_content=1):
     that are (title, path, category) tuples for the generated
     content files.
     """
-    new_content = {}
+    new_content = defaultdict(list)
     for _ in range(count):
         title = get_random_text_and_whitespace()
         category_choice = random.sample(categories, categories_per_content)
@@ -63,8 +63,8 @@ def make_content(directory, categories, count=5, categories_per_content=1):
             tmp.write(output)
         path = os.path.join(directory, content_file.name)
         for each_cat in category_choice:
-            new_content[(cc.substitute_category_name(each_cat), each_cat)] =\
-                Content(title, path, categories_string)
+            new_content[(cc.substitute_category_name(each_cat), each_cat)]\
+                .append(Content(title, path, categories_string))
     return new_content
 
 
@@ -145,10 +145,27 @@ class TestContentCollation(unittest.TestCase):
 
     def test_articles_with_one_category(self):
 
-        for categories, articles in self.articles.items():
-            substituted_category, original_category = categories
-            self.assertIn(
-                '%s_articles' % substituted_category, self.collations)
+        for substituted_category, original_category in self.articles.keys():
+            collation_key = '%s_articles' % substituted_category
+            self.assertIn(collation_key, self.collations)
+
+            collated_titles = [a.title for a in self.collations[collation_key]]
+
+            for title, _, _ in self.articles[
+                    (substituted_category, original_category)]:
+                self.assertIn(title, collated_titles)
+
+    def test_pages_with_one_category(self):
+
+        for substituted_category, original_category in self.pages.keys():
+            collation_key = '%s_pages' % substituted_category
+            self.assertIn(collation_key, self.collations)
+
+            collated_titles = [a.title for a in self.collations[collation_key]]
+
+            for title, _, _ in self.pages[
+                    (substituted_category, original_category)]:
+                self.assertIn(title, collated_titles)
 
 
 class TestContentCollationWithFilteredCategories(unittest.TestCase):
