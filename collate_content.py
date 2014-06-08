@@ -40,11 +40,23 @@ def group_content(generator, content_type):
         category = content.category.name
         if filtering_active and category not in category_filter:
             continue
-        category = re.sub(r'\s', '_', category).replace('-', '_')
+        category = substitute_category_name(category)
         collations['%s_%s' % (category, content_type)].append(content)
     print(collations)
     generator.context['collations'] = collations
 
+
+def substitute_category_name(category_name):
+    """
+    Replaces whitespace and '-' characters in `category_name`
+    to allow category_name to be made into a valid Python
+    identifier.
+
+    Doesn't check all possible ways a string might be invalid;
+    the user of the collate_content module is advised to use
+    categories with Python-friendly names.
+    """
+    return re.sub(r'\s', '_', category_name).replace('-', '_')
 
 ARTICLE_GROUPER = functools.partial(group_content, content_type='articles')
 PAGE_GROUPER = functools.partial(group_content, content_type='pages')
