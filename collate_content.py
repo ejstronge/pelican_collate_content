@@ -1,7 +1,6 @@
 """
 collate_content.py
-==================
-
+================== 
 (c) 2014 - Edward Stronge
 
 Connects to the content generator finalized signal to combine
@@ -63,7 +62,7 @@ def substitute_category_name(category_name):
     the user of the collate_content module is advised to use
     categories with Python-friendly names.
     """
-    return re.sub(r'\s', '_', category_name).replace('-', '_')
+    return re.sub(r'\s', '_', category_name).replace('-', '_').lower()
 
 ARTICLE_GROUPER = functools.partial(group_content, content_type='articles')
 PAGE_GROUPER = functools.partial(group_content, content_type='pages')
