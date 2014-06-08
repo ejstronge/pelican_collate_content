@@ -11,7 +11,9 @@ If you downloaded this module as part of the pelican-plugins repository,
 add it to your Pelican configuration as follows:
 
     PLUGIN_PATH = '/path/to/pelican-plugins'
-    PLUGINS = ['pelican_collate_content', ] Otherwise, you can import it into Python as a normal module if you place
+    PLUGINS = ['pelican_collate_content', ]
+    
+Otherwise, you can import it into Python as a normal module if you place
 this repository in your `$PYTHONPATH`.
 
 ## Usage
