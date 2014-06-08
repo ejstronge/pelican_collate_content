@@ -1,4 +1,12 @@
+"""
+test_collate_content
+====================
 
+Edward J. Stronge
+(c) 2014
+
+Tests for the collate_content module
+"""
 from collections import namedtuple
 import os
 import random
@@ -11,6 +19,7 @@ from pelican import Pelican
 from pelican import ArticlesGenerator, PagesGenerator
 from pelican.settings import read_settings
 
+import collate_content as cc
 
 TEMP_PAGE_TEMPLATE = """Title: {title}
 Date: 2014-03-06
@@ -30,6 +39,8 @@ BLOG_CHARACTERS = string.letters + ' -:'
 
 def make_content(directory, categories, count=5, categories_per_content=1):
     """
+    make_content --> {(processed_category, original_category): articles, ...}
+
     Writes random titles and categories into `count` temporary
     files in `directory`. If desired, specify `categories_per_content`
     to assign multiple categories to each written file.
@@ -51,9 +62,9 @@ def make_content(directory, categories, count=5, categories_per_content=1):
         with content_file as tmp:
             tmp.write(output)
         path = os.path.join(directory, content_file.name)
-        for category in category_choice:
-            new_content[(category, category_choice)] =\
-                Content(title, path, categories_string)
+        new_content[
+            (cc.substitute_category_name(category_choice), category_choice)] =\
+            Content(title, path, categories_string)
     return new_content
 
 
@@ -66,7 +77,10 @@ def get_random_text_and_whitespace(length=10):
 
 
 def modified_pelican_run(self):
-    """Run the generators and return the final context object"""
+    """Runs the generators and returns the context object
+
+    Modified from the Pelican object's run methods.
+    """
 
     context = self.settings.copy()
     context['filenames'] = {}  # share the dict between all the generators
@@ -101,9 +115,7 @@ class TestContentCollation(unittest.TestCase):
 
     def setUp(self, settings_overrides=None, articles=5, pages=5,
               categories_per_content=1):
-        import collate_content as cc
-        self.temp_input_dir = tempfile.mkdtemp(prefix="cc-input-",
-                                               dir='/home/roi/')
+        self.temp_input_dir = tempfile.mkdtemp(prefix="cc-input-", dir='/home/roi/')
         page_directory = os.path.join(self.temp_input_dir, 'pages')
         os.mkdir(page_directory)
         self.temp_output_dir = tempfile.mkdtemp(prefix="cc-output-",
@@ -143,7 +155,7 @@ class TestContentCollation(unittest.TestCase):
 class TestContentCollationWithFilteredCategories(unittest.TestCase):
     """Test generation of lists of content based on their Category metadata"""
 
-    def setUp(self, settings_overrides):
+    def setUp(self):
         pass
 
     def tearDown(self):
@@ -151,3 +163,7 @@ class TestContentCollationWithFilteredCategories(unittest.TestCase):
 
     def test_articles_with_one_category(self):
         pass
+
+if __name__ == '__main__':
+    suite = unittest.TestLoader().loadTestsFromNames(['test_collate_content'])
+    unittest.TextTestRunner(verbosity=1).run(suite)
