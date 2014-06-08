@@ -1,6 +1,6 @@
 """
 collate_content.py
-================== 
+==================
 (c) 2014 - Edward Stronge
 
 Connects to the content generator finalized signal to combine
